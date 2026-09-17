@@ -1,4 +1,17 @@
 yolov8n.pt
 imx_camera/test/
 yolo_image/
+
 dual_camera/result/
+
+dual_camera/calibration/9-points_test/
+dual_camera/calibration/spatial_alignment_evaluation/
+dual_camera/calibration/__pycache__/
+
+dual_camera/roi/ROI_test/
+dual_camera/roi/roi_margin_evaluation/
+dual_camera/roi/thermal_roi_results/
+dual_camera/roi/__pycache__/
+
+dual_camera/thermal_roi_results
+dual_camera/roi_margin_evaluation

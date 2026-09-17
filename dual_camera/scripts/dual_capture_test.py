@@ -16,6 +16,7 @@ import numpy as np
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
+RESULT_ROOT = SCRIPT_DIR.parent / "result"
 
 ADB_EXE = PROJECT_ROOT / "2_tools" / "adb_fastboot" / "adb.exe"
 
@@ -32,11 +33,18 @@ THERMAL_TIMESTAMP_FILE_LUCKFOX = "/tmp/thermal_frame_timestamps.csv"
 # ==============================================================================
 # RGB CONFIGURATION
 # ==============================================================================
-
 RGB_WIDTH = 640
 RGB_HEIGHT = 480
 RGB_FRAME_COUNT = 30
 RGB_OUTPUT_FPS = 15
+
+# ==============================================================================
+# THERMAL CONFIGURATION
+# ==============================================================================
+THERMAL_FRAME_COUNT = 30
+THERMAL_WIDTH = 32
+THERMAL_HEIGHT = 24
+THERMAL_FRAME_BYTES = 1536
 
 # ==============================================================================
 # CREATE SESSION DIRECTORY
@@ -44,7 +52,6 @@ RGB_OUTPUT_FPS = 15
 
 SESSION_TIME = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-RESULT_ROOT = SCRIPT_DIR / "result"
 SESSION_DIR = RESULT_ROOT / SESSION_TIME
 
 RGB_DIR = SESSION_DIR / "rgb"
@@ -74,7 +81,7 @@ experiment_start_ns = None
 # THERMAL FUNCTIONS
 # ==============================================================================
 def capture_thermal_remote():
-    print("[THERMAL] Triggering ""/root/thermal_capture_with_time.py...")
+    print("[THERMAL] Triggering ""/root/thermal_read_with_time.py...")
     command = [str(ADB_EXE),"shell",f"python3 {THERMAL_SCRIPT_LUCKFOX}"]
 
     try:
@@ -143,7 +150,7 @@ def convert_thermal_raw():
         print("[THERMAL] RAW file does not exist.")
         return False
 
-    frame_bytes = 1536
+    frame_bytes = THERMAL_FRAME_BYTES
     file_size = os.path.getsize(THERMAL_RAW_LOCAL)
 
     if file_size == 0:
@@ -163,7 +170,7 @@ def convert_thermal_raw():
             if len(raw) != frame_bytes:
                 break
             pixels = np.frombuffer(raw,dtype="<i2")
-            frame = pixels.reshape((24, 32))
+            frame = pixels.reshape((THERMAL_HEIGHT, THERMAL_WIDTH))
 
             # Same canonical orientation established
             # in the previous thermal tests.
@@ -391,6 +398,33 @@ def main():
     print("======================================")
     print(f"Results:")
     print(SESSION_DIR)
+
+    print()
+    print("======================================")
+    print(" Generating dual playback")
+    print("======================================")
+
+    PLAYBACK_SCRIPT = SCRIPT_DIR / "dual_playback.py"
+
+    if not PLAYBACK_SCRIPT.exists():
+        print("[ERROR] dual_playback.py not found:")
+        print(PLAYBACK_SCRIPT)
+        return
+
+    command = ["python",str(PLAYBACK_SCRIPT),str(SESSION_DIR)]
+    result = subprocess.run(command)
+
+    if result.returncode != 0:
+        print("[ERROR] Dual playback generation failed.")
+        return
+
+    print("======================================")
+    print(" All processing completed")
+    print("======================================")
+    print("Session:")
+    print(SESSION_DIR)
+    print("Playback:")
+    print(SESSION_DIR / "dual_playback_actual_timestamps.mp4")
 
 if __name__ == "__main__":
     main()

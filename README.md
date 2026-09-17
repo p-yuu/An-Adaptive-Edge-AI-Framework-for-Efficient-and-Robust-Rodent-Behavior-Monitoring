@@ -170,6 +170,79 @@ video_finale_yolo.mp4
     輸出 ``<device-id>    device``
 
 ## 9. dual_camera
-1. ``dual_capture_test.py``：同時捕捉thermal 和 RGB 影像
-2. ``view_npy.py``：查看 thermal 影像
-3. ``dual_playback.py``：產生 thermal 和 RGB 影像的對比圖與時間
+
+用於 RGB camera 與 MLX90640 thermal camera 的同步擷取、
+時間對齊、空間校正，以及 thermal-guided RGB ROI 測試。
+
+### 1. Capture & Playback
+
+位於 `/scripts`
+
+- `dual_capture_test.py`
+  - 同時觸發 RGB 與 Thermal capture。
+  - 儲存兩個 sensor 的影像與 timestamp。
+
+- `dual_playback.py`
+  - 根據 timestamp 配對 RGB 與 Thermal frames。
+  - 產生雙攝影機同步播放結果。
+
+- `camera_view.py`
+  - Thermal camera 即時顯示。
+
+- `view_npy.py`
+  - 查看儲存的 thermal `.npy` frame。
+
+
+### 2. Spatial Calibration
+
+位於 `/calibration`
+
+- `spatial_calibration_click.py`
+  - 人工點選 RGB 與 Thermal 中相同位置。
+  - 建立 Thermal → RGB correspondence。
+
+- `calibration_points.csv`
+  - 9-point calibration 的 correspondence。
+
+- `spatial_alignment_evaluate.py`
+  - 建立 Affine transformation。
+  - 計算 Full-fit 與 Leave-One-Out spatial error。
+
+- `/9-points_test`
+  - 9-point calibration 原始測試資料。
+
+- `/spatial_alignment_evaluation`
+  - Affine transformation 與 spatial error 分析結果。
+
+
+### 3. Thermal-guided RGB ROI
+
+位於 `/roi`
+
+- `thermal_roi_proposal.py`
+  - 比較 background 與 target thermal frames。
+  - 偵測 Thermal warm region。
+  - 將 Thermal bounding box 經 Affine transformation 映射至 RGB。
+
+- `rgb_ground_truth_annotator.py`
+  - 手動標註 RGB 中可見手部 Ground Truth bounding box。
+
+- `rgb_ground_truth.csv`
+  - Ground Truth 標註結果。
+
+- `roi_margin_sweep.py`
+  - 比較 Thermal-generated ROI 與 RGB Ground Truth。
+  - 評估不同 safety margin 下的 target containment 與 ROI area。
+
+- `/ROI_test`
+  - ROI 測試原始資料。
+
+- `/thermal_roi_results`
+  - Thermal → RGB ROI proposal 結果。
+
+- `/roi_margin_evaluation`
+  - Safety margin 與 ROI area / containment trade-off 分析結果。
+
+- `roi_demo.py`
+  - demo raw ROI + margin (50px)
+  - D: 下一張圖, A:上一張圖, esc: 結束 

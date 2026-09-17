@@ -2,6 +2,7 @@ import csv
 from pathlib import Path
 import cv2
 import numpy as np
+import sys
 
 
 # ==============================================================================
@@ -9,10 +10,33 @@ import numpy as np
 # ==============================================================================
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+RESULT_ROOT = SCRIPT_DIR.parent / "result"
+
+# ==============================================================================
+# SESSION DIRECTORY
+# ==============================================================================
+
+if len(sys.argv) < 2:
+    print("[ERROR] No session directory provided.")
+    print("Usage:")
+    print("python dual_playback.py <session_directory>")
+    sys.exit(1)
+
+session_argument = Path(sys.argv[1])
+SESSION_DIR = (
+    session_argument
+    if session_argument.is_absolute()
+    else RESULT_ROOT / session_argument
+).resolve()
+
+print(f"[PLAYBACK] Session directory:")
+print(SESSION_DIR)
+
+RGB_VIDEO = SESSION_DIR / "rgb" / "rgb.mp4"
 
 # Change this to the session you want to inspect
-SESSION_DIR = SCRIPT_DIR / "result" / "20260910_230558"
-RGB_VIDEO = SESSION_DIR / "rgb" / "rgb.mp4"
+# SESSION_DIR = RESULT_ROOT / "20260913_232401"
+# RGB_VIDEO = SESSION_DIR / "rgb" / "rgb.mp4"
 
 # Real per-frame RGB timestamps from Luckfox V4L2
 RGB_FRAME_TIMESTAMP_CSV = (SESSION_DIR / "rgb" / "rgb_frame_timestamps.csv")
@@ -34,7 +58,7 @@ OUTPUT_HEIGHT = PANEL_HEIGHT
 
 # Slower output for visual inspection.
 # This affects playback speed only. It does NOT affect timestamp pairing.
-OUTPUT_FPS = 5.0
+OUTPUT_FPS = 15.0
 
 # ==============================================================================
 # LOAD RGB PER-FRAME TIMESTAMPS
@@ -69,8 +93,10 @@ def load_thermal_timestamps():
 
             records.append({
                 "frame_id": frame_id,
-                "timestamp_s": float(row["timestamp_monotonic_s"]),
+                "subpage_id": int(row["subpage_id"]),
+                "timestamp_s": float(row["new_data_timestamp_monotonic_s"]),
                 "read_start_s": float(row["read_start_monotonic_s"]),
+                "read_midpoint_s": float(row["timestamp_monotonic_s"]),
                 "read_end_s": float(row["read_end_monotonic_s"]),
                 "read_latency_ms": float(row["read_latency_ms"]),
                 "filename": (f"frame_{frame_id:04d}.npy")
@@ -232,7 +258,10 @@ def main():
         "rgb_sequence",
         "rgb_timestamp_monotonic_s",
         "thermal_frame_id",
-        "thermal_timestamp_monotonic_s",
+        "thermal_subpage_id",
+        "thermal_new_data_timestamp_monotonic_s",
+        "thermal_read_midpoint_monotonic_s",
+        "thermal_read_latency_ms",
         "delta_ms",
         "abs_delta_ms",
         "rgb_inside_thermal_range"
@@ -279,8 +308,16 @@ def main():
         # Thermal overlay
         # ----------------------------------------------------------------------
         cv2.putText(thermal_panel,"THERMAL",(20, 35),cv2.FONT_HERSHEY_SIMPLEX,0.9,(255, 255, 255),2)
-        cv2.putText(thermal_panel,(f"Frame: {thermal_record['frame_id']}"),(20, 70),cv2.FONT_HERSHEY_SIMPLEX,0.65,(255, 255, 255),2)
-        cv2.putText(thermal_panel,f"t: {thermal_time_s:.6f} s",(20, 100),cv2.FONT_HERSHEY_SIMPLEX,0.60,(255, 255, 255),2)
+        cv2.putText(
+            thermal_panel,
+            f"Frame: {thermal_record['frame_id']}  Subpage: {thermal_record['subpage_id']}",
+            (20, 70),cv2.FONT_HERSHEY_SIMPLEX,0.65,(255, 255, 255),2
+        )
+        cv2.putText(
+            thermal_panel,
+            f"new-data t: {thermal_time_s:.6f} s",
+            (20, 100),cv2.FONT_HERSHEY_SIMPLEX,0.60,(255, 255, 255),2
+        )
         cv2.putText(thermal_panel,f"dt: {delta_ms:+.1f} ms",(20, 130),cv2.FONT_HERSHEY_SIMPLEX,0.65,(255, 255, 255),2)
         cv2.putText(thermal_panel,("Range: "+ ("overlap" if inside_thermal_range else "outside")),(20, 160),cv2.FONT_HERSHEY_SIMPLEX,0.60,(255, 255, 255),2)
 
@@ -292,7 +329,10 @@ def main():
             rgb_record["sequence"],
             f"{rgb_time_s:.9f}",
             thermal_record["frame_id"],
+            thermal_record["subpage_id"],
             f"{thermal_time_s:.9f}",
+            f"{thermal_record['read_midpoint_s']:.9f}",
+            f"{thermal_record['read_latency_ms']:.3f}",
             f"{delta_ms:.3f}",
             f"{abs_delta_ms:.3f}",
             inside_thermal_range
