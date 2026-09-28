@@ -18,7 +18,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 RESULT_ROOT = SCRIPT_DIR.parent / "result"
 
-ADB_EXE = PROJECT_ROOT / "2_tools" / "adb_fastboot" / "adb.exe"
+ADB_EXE = PROJECT_ROOT.parent / "2_tools" / "adb_fastboot" / "adb.exe"
 
 # Luckfox RGB capture
 RGB_SCRIPT_LUCKFOX = "/root/capture_with_time.py"

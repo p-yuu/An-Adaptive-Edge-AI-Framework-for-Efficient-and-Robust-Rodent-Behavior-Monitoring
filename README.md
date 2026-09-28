@@ -96,6 +96,7 @@ Clara_MiceMonitoring/
 ``capture_with_time``：捕捉影像與 frame 之間的時間差的 CSV  
 ``thermal_newdata_test.py``：測試 8 HZ refresh rate 是否能正確捕捉到資訊 (廢棄 / debug) 
 ``thermal_read_with_time.py``：拍攝 30 frame thermal information 並記錄時間
+``degrees_Celsius_test/``：測試將溫度轉換成攝氏度
 
 ## 6. RGB Camera Pipeline
 ### 6.1 RGB Capture
