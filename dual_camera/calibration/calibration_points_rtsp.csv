@@ -1,0 +1,10 @@
+session,rgb_image,thermal_file,thermal_x,thermal_y,rgb_x,rgb_y
+top_left,top_left\20261015_134629_rgb.png,top_left\20261015_134629_thermal_raw.npy,7.105,18.1933,462.43,580.76
+top_mid,top_mid\20261015_134719_rgb.png,top_mid\20261015_134719_thermal_raw.npy,5.605,13.4467,402.7,405.75
+top_right,top_right\20261015_134843_rgb.png,top_right\20261015_134843_thermal_raw.npy,5.575,7.74,341.54,179.5
+mid_left,mid_left\20261015_134917_rgb.png,mid_left\20261015_134917_thermal_raw.npy,13.525,15.6333,729.81,484.01
+mid,mid\20261015_134939_rgb.png,mid\20261015_134939_thermal_raw.npy,12.175,9.4467,670.08,267.72
+mid_right,mid_right\20261015_135051_rgb.png,mid_right\20261015_135051_thermal_raw.npy,12.205,7.9533,675.77,143.93
+bottom_left,bottom_left\20261015_135204_rgb.png,bottom_left\20261015_135204_thermal_raw.npy,16.885,16.4867,903.32,529.54
+bottom_mid,bottom_mid\20261015_135228_rgb.png,bottom_mid\20261015_135228_thermal_raw.npy,16.255,11.1533,894.79,313.25
+bottom_right,bottom_right\20261015_140726_rgb.png,bottom_right\20261015_140726_thermal_raw.npy,11.155,8.9133,711.32,243.53
