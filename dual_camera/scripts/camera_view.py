@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 
-ADB_EXE = Path(__file__).resolve().parent.parent.parent / "2_tools" / "adb_fastboot" / "adb.exe"
+ADB_EXE = Path(__file__).resolve().parent.parent.parent.parent / "2_tools" / "adb_fastboot" / "adb.exe"
 
 def call_adb(command):
     cmd = [str(ADB_EXE), "shell", command]
@@ -55,9 +55,10 @@ while True:
         # orientation for natural motion reflection
         # frame_norm = np.fliplr(frame_norm)
         frame_norm = np.flipud(frame_norm)
+        frame_norm = np.rot90(frame_norm, k=1)
         
         # Initial Bilinear Resize (x5) from (24, 32) to (120, 160)
-        frame_resized = cv2.resize(frame_norm, (160, 120), interpolation=cv2.INTER_LINEAR)
+        frame_resized = cv2.resize(frame_norm, (120, 160), interpolation=cv2.INTER_LINEAR)
         
         # Bilateral Filtering to preserve edges while smoothing surfaces
         frame_clean = cv2.bilateralFilter(frame_resized, d=9, sigmaColor=75, sigmaSpace=75)

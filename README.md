@@ -202,12 +202,22 @@ video_finale_yolo.mp4
   - 人工點選 RGB 與 Thermal 中相同位置。
   - 建立 Thermal → RGB correspondence。
 
+- `spatial_calibration_click_rtsp.py`
+  - 新的 9 點校正程式影像對齊程式。
+
+- `capture_calibration_pair.py`
+  - 用 RTSP pipeline 擷取 RGB 影像 + thermal 影像
+  - python capture_calibration_pair.py --point mid
+
 - `calibration_points.csv`
   - 9-point calibration 的 correspondence。
 
 - `spatial_alignment_evaluate.py`
   - 建立 Affine transformation。
   - 計算 Full-fit 與 Leave-One-Out spatial error。
+
+- `spatial_alignment_evaluate_rtsp.py`
+  - 新的 `spatial_alignment_evaluate.py`
 
 - `/9-points_test`
   - 9-point calibration 原始測試資料。
@@ -219,6 +229,9 @@ video_finale_yolo.mp4
 ### 3. Thermal-guided RGB ROI
 
 位於 `/roi`
+- `capture_roi_test_rtsp.py`
+  - 擷取新的 ROI_test set
+  - python .\capture_roi_test_rtsp.py --session background --frames 40 (40 frame 的 thermal)
 
 - `thermal_roi_proposal.py`
   - 比較 background 與 target thermal frames。
@@ -247,3 +260,13 @@ video_finale_yolo.mp4
 - `roi_demo.py`
   - demo raw ROI + margin (50px)
   - D: 下一張圖, A:上一張圖, esc: 結束 
+
+### rgb_test/
+測試直接傳輸 rgb 的 pipeline
+
+### edge_capture_pipeline/
+新 pipeline 的內容
+- ``rgb_recoder.py``：連續拍攝影片
+  ```
+  python .\rgb_recorder.py --output "C:\Data\code\capstone\rat\Clara_MiceMonitoring\Clara_MiceMonitoring\5_code\edge_capture_pipeline\rgb_sessions" --max-minutes 5
+  ```
